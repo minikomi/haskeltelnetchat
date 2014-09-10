@@ -68,14 +68,14 @@ acceptLoop evChan =
   bracket (listenOn port) sClose $ \s -> acceptLoop' s (0::Int)
   where acceptLoop' s n   = bracket (accept s) (\(h, _, _) -> hClose h) (handler s n)
         handler s n (h,_,_) =
-          do hPutStr h "Please enter your name: \n"
+          do hPutStr h "Please enter your name: "
              eitherLn <- try (hGetLine h)
              case eitherLn of
                   Left e -> if isEOFError e
                             then do return ()
                             else ioError e
                   Right ln -> do
-                    let u = (User ln h)
+                    let u = (User (filter (/= '\r') ln) h)
                     writeChan evChan (Join u)
                     forkIO $ userLoop u evChan
                     acceptLoop' s (succ n)
