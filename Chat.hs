@@ -39,13 +39,13 @@ broadcastLoop h@(Hub us ch) = do
                                         broadcastLoop hub
                     (Join u@(User n _)) -> let newusers  = u : us
                                                usercount = (show $ length newusers) in
-                                             do print $ n ++ " joined. " ++ " Currently Chatting: " ++ usercount
+                                             do putStrLn $ n ++ " joined. " ++ " Currently Chatting: " ++ usercount
                                                 mapM_ (\u' -> writeUser u' (n ++ " joined.")) us
                                                 writeUser u ("Welcome "  ++ n ++". Currenly " ++ usercount )
                                                 broadcastLoop (Hub newusers ch)
                     (Quit n) -> let newusers = filter (\ (User n' _) -> n /= n') us
                                     usercount = (show $ length newusers) in
-                                    do print $ n ++ " quit. " ++ " Currently chatting: " ++ usercount
+                                    do putStrLn $ n ++ " quit. " ++ " Currently chatting: " ++ usercount
                                        mapM_ (\ u -> writeUser u (n ++ " quit!")) newusers
                                        broadcastLoop (Hub newusers ch)
 
@@ -82,6 +82,7 @@ acceptLoop evChan =
 
 main :: IO ()
 main = do
+  putStrLn $ "Listening on " ++ (show port)
   evChan <- newChan
   let h = Hub [] evChan
   forkIO $ broadcastLoop h
